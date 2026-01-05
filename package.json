@@ -1,8 +1,12 @@
 {
-  "name": "bagibagi-webhook",
+  "name": "bagibagi-roblox-webhook",
   "version": "1.0.0",
+  "description": "BagiBagi.co webhook forwarder untuk Roblox",
+  "type": "module",
   "dependencies": {
-    "express": "^4.18.2",
     "axios": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18.x"
   }
 }
