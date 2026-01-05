@@ -1,11 +1,16 @@
 {
   "name": "bagibagi-roblox-webhook",
   "version": "1.0.0",
-  "type": "module",
+  "description": "Bridge BagiBagi donations to Roblox game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
+    "express": "^4.18.2",
     "axios": "^1.6.0"
   },
   "engines": {
-    "node": "20.x"
+    "node": ">=18.x"
   }
 }
