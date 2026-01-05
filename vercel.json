@@ -1,8 +1,5 @@
 {
   "version": 2,
-  "env": {
-    "ROBLOX_API_KEY": "@roblox-api-key"
-  },
   "builds": [
     {
       "src": "api/**/*.js",
