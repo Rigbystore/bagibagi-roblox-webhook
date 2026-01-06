@@ -1,99 +1,67 @@
-// api/webhook.js
-import axios from 'axios';
+// api/saweria-webhook.js
+const axios = require('axios');
 
-// Konfigurasi
-const UNIVERSE_ID = "YOUR_UNIVERSE_ID"; // Ganti dengan Universe ID game kamu
-const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || ""; // Optional: untuk validasi
-
-export default async function handler(req, res) {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  // Handle preflight
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  // Only allow POST
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  try {
-    const data = req.body;
-
-    // Validasi data dari BagiBagi.co
-    if (!data.supporter_name || !data.support_amount) {
-      console.error('❌ Invalid data received:', data);
-      return res.status(400).json({ 
-        error: 'Invalid data',
-        received: data 
-      });
-    }
-
-    // Optional: Validasi webhook secret
-    if (WEBHOOK_SECRET && req.headers['x-webhook-secret'] !== WEBHOOK_SECRET) {
-      console.error('❌ Invalid webhook secret');
-      return res.status(403).json({ error: 'Forbidden' });
-    }
-
-    // Format data untuk Roblox
-    const notificationData = {
-      donorName: data.supporter_name,
-      amount: data.support_amount,
-      message: data.support_message || "",
-      timestamp: Date.now(),
-      source: "bagibagi"
-    };
-
-    console.log('📨 Donation received:', {
-      donor: notificationData.donorName,
-      amount: notificationData.amount,
-      message: notificationData.message
-    });
-
-    // Kirim ke Roblox MessagingService
-    const robloxApiKey = process.env.ROBLOX_API_KEY;
+module.exports = async (req, res) => {
+    // CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     
-    if (!robloxApiKey) {
-      throw new Error('ROBLOX_API_KEY not configured');
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
     }
-
-    const robloxResponse = await axios.post(
-      `https://apis.roblox.com/messaging-service/v1/universes/${UNIVERSE_ID}/topics/BagiBagiDonation`,
-      {
-        message: JSON.stringify(notificationData)
-      },
-      {
-        headers: {
-          'x-api-key': robloxApiKey,
-          'Content-Type': 'application/json'
-        },
-        timeout: 5000 // 5 second timeout
-      }
-    );
-
-    console.log('✅ Forwarded to Roblox successfully');
-
-    return res.status(200).json({ 
-      success: true,
-      message: 'Donation notification sent',
-      data: {
-        donor: notificationData.donorName,
-        amount: notificationData.amount
-      }
-    });
-
-  } catch (error) {
-    console.error('❌ Error processing webhook:', error.message);
     
-    // Detailed error response
-    return res.status(500).json({ 
-      error: 'Internal server error',
-      message: error.message,
-      details: error.response?.data || null
-    });
-  }
-}
+    if (req.method !== 'POST') {
+        return res.status(200).json({ 
+            status: 'OK',
+            message: 'Saweria webhook endpoint ready!' 
+        });
+    }
+    
+    try {
+        const donation = req.body;
+        
+        const donationData = {
+            donor_name: donation.donatur_name || donation.donor_name || "Anonymous",
+            amount: parseInt(donation.amount_raw || donation.amount) || 0,
+            message: donation.message || "",
+            timestamp: Date.now()
+        };
+        
+        console.log('Received donation:', donationData);
+        
+        const ROBLOX_API_KEY = process.env.ROBLOX_API_KEY;
+        const UNIVERSE_ID = process.env.UNIVERSE_ID;
+        
+        if (!ROBLOX_API_KEY || !UNIVERSE_ID) {
+            console.error('Missing env variables!');
+            return res.status(500).json({ error: 'Server configuration error' });
+        }
+        
+        await axios.post(
+            `https://apis.roblox.com/messaging-service/v1/universes/${UNIVERSE_ID}/topics/SaweriaDonation`,
+            { message: JSON.stringify(donationData) },
+            {
+                headers: {
+                    'x-api-key': ROBLOX_API_KEY,
+                    'Content-Type': 'application/json'
+                },
+                timeout: 5000
+            }
+        );
+        
+        console.log('Sent to Roblox successfully!');
+        
+        return res.status(200).json({ 
+            success: true,
+            donor: donationData.donor_name,
+            amount: donationData.amount
+        });
+        
+    } catch (error) {
+        console.error('Error:', error.message);
+        return res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
+    }
+};
