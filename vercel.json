@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "functions": {
+    "api/bagibagi-webhook.js": {
+      "maxDuration": 10
+    }
+  }
+}
