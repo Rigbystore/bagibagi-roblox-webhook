@@ -1,19 +1,7 @@
 {
-  "name": "bagibagi-roblox-webhook",
+  "name": "bagibagi-webhook",
   "version": "1.0.0",
-  "description": "BagiBagi.co donation webhook for Roblox integration",
-  "main": "api/bagibagi-webhook.js",
   "dependencies": {
     "axios": "^1.6.0"
-  },
-  "engines": {
-    "node": ">=18.x"
-  },
-  "author": "RG",
-  "keywords": [
-    "bagibagi",
-    "roblox",
-    "webhook",
-    "donation"
-  ]
+  }
 }
