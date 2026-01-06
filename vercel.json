@@ -1,8 +1,15 @@
 {
   "version": 2,
-  "functions": {
-    "api/bagibagi-webhook.js": {
-      "maxDuration": 10
+  "builds": [
+    {
+      "src": "api/bagibagi-webhook.js",
+      "use": "@vercel/node"
     }
-  }
+  ],
+  "routes": [
+    {
+      "src": "/api/bagibagi-webhook",
+      "dest": "api/bagibagi-webhook.js"
+    }
+  ]
 }
